@@ -1,0 +1,28 @@
+
+version: "3.1"
+services:
+  app1:
+    image: test/dummy-tlssever
+    build: ./test
+    environment:
+      NAME: "${STACK}_app1"
+    networks:
+    - public_default
+
+  app2:
+    image: test/dummy-tlsserver
+    build: ./test
+    environment:
+      NAME: "${STACK}_app2"
+    networks:
+    - public_default
+
+  app3:
+    image: test/dummy-tlsserver
+    build: ./test
+    environment:
+      NAME: "${STACK}_app3"
+
+networks:
+  public_default:
+    external: true
