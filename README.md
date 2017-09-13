@@ -5,34 +5,22 @@ Simplistic reverse proxy to route HTTPS(443) connection to actual dockers
 
 # How to use
 
-- launch the sni reverse proxy as a stack "public" creating a "default" network `public_default`:
-```bash
-docker stack deploy -c docker-compose.yml public
-```
-
-- launch an applicative stack "stack1"
-```bash
-STACK=stack1 docker stack deploy -c docker-compose.app.yml stack1
-```
-
-- launch another applicative stack "stack2"
-```bash
-STACK=stack2 docker stack deploy -c docker-compose.app.yml stack1
-```
-
-- now test whether it works
-```
-$ curl -k https://app1.stack1.localtest.me:443/
-=stack1_app1=
-$ curl -k https://app2.stack1.localtest.me:443/
-=stack1_app2=
+## Service mode
+- Integrate docker-sni-proxy within your services with MODE=service
+- To call a service SERVICE, use SERVICE.DOMAIN,
+  docker-sni-proxy will call SERVICE
 
 
-$ curl -k https://app1.stack2.localtest.me:443/
-=stack2_app1=
-$ curl -k https://app2.stack2.localtest.me:443/
-=stack2_app2=
+## Stack mode
+- Integrate docker-sni-proxy in a dedicated stack with a "public" network.
+- Ensure all other public service are link to that "public network"
+- To call a service SERVICE within the stack STACK, use SERVICE.STACK.DOMAIN,
+  docker-sni-proxy will call STACK_SERVICE
 
-$ curl -k https://app3.stack1.localtest.me:443/
-curl: (35) Unknown SSL protocol error in connection to app3.stack1.localtest.me:443
-```
+
+## Changelog
+- 0.0.2
+  - Add support to HTTP on port 80
+  - Add mode `service`. default remains `stack`
+- 0.0.1
+  - Basic support of SNI on port 443

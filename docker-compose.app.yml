@@ -2,26 +2,36 @@
 version: "3.1"
 services:
   app1:
-    image: test/dummy-tlssever
-    build: ./test
+    image: test/dummy-tls-server
+    build: ./tests/app-https
     environment:
       NAME: "${STACK}_app1"
     networks:
     - public_default
 
   app2:
-    image: test/dummy-tlsserver
-    build: ./test
+    image: test/dummy-tls-server
+    build: ./tests/app-https
     environment:
       NAME: "${STACK}_app2"
     networks:
     - public_default
 
   app3:
-    image: test/dummy-tlsserver
-    build: ./test
+    image: test/dummy-tls-server
+    build: ./tests/app-https
     environment:
       NAME: "${STACK}_app3"
+    networks:
+    - public_default
+
+  app4:
+    image: test/dummy-http-server
+    build: ./tests/app-http
+    environment:
+      NAME: "${STACK}_app4"
+    networks:
+    - public_default
 
 networks:
   public_default:

@@ -1,0 +1,47 @@
+version: "3.1"
+services:
+  sut:
+    image: test/sut
+    build: tests/sut
+    network_mode: host # allow 127.0.0.1 to call external ports of proxy
+    command: [ './test.sh', 'test-only']
+    depends_on:
+    - proxy
+    - app1
+    - app2
+    - app3
+    - app4
+
+  proxy:
+    image: internal/docker-sni-router
+    build: .
+    tty: true #for human readable logs
+    environment:
+      MODE: service
+    ports:
+    - 8443:443
+    - 8080:80
+
+  app1:
+    image: test/dummy-tls-server
+    build: ./tests/app-https
+    environment:
+      NAME: "app1"
+
+  app2:
+    image: test/dummy-tls-server
+    build: ./tests/app-https
+    environment:
+      NAME: "app2"
+
+  app3:
+    image: test/dummy-tls-server
+    build: ./tests/app-https
+    environment:
+      NAME: "app3"
+
+  app4:
+    image: test/dummy-http-server
+    build: ./tests/app-http
+    environment:
+      NAME: "app4"

@@ -3,8 +3,8 @@ RUN apk add --no-cache make git
 WORKDIR /app/src
 
 COPY . ./
-RUN go build -o dummy-tlsserver -ldflags "-s -w "
+RUN go build -o dummy-http-server -ldflags "-s -w "
 
 EXPOSE 443
 
-CMD ["./dummy-tlsserver"]
+CMD ["./dummy-http-server"]

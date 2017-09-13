@@ -6,8 +6,9 @@ import (
 	"strings"
 	"sync"
 	"sync/atomic"
+	"time"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 type Session struct {
@@ -51,31 +52,52 @@ func (session *Session) streamToConn(c1, c2 net.Conn) {
 	log.Println("Session", session.id, "- Closed", c1.RemoteAddr().String())
 }
 
-func (session *Session) ServerDispatch(conn net.Conn) {
+func (session *Session) ServerDispatch(conn net.Conn, tls bool, mode string) {
 	b2 := make([]byte, 1000)
+	time.Sleep(100 * time.Millisecond)
 	n, err := conn.Read(b2)
 	if err != nil {
 		conn.Close()
 		return
 	}
 	b2 = b2[:n]
-
-	hostname, err := GetHostname(b2)
-	if err != nil {
-		log.Errorln("Session", session.id, "- Not SSL Hello :", err, string(b2))
-		conn.Close()
-		return
+	var hostname string
+	var port string
+	if tls {
+		hostname, err = GetHostname(b2)
+		if err != nil {
+			log.Errorln("Session", session.id, "- Not SSL Hello :", err, string(b2))
+			conn.Close()
+			return
+		}
+		port = ":443"
+	} else {
+		hostname, err = GetHostnameHTTP(string(b2))
+		if err != nil {
+			log.Errorln("Session", session.id, "- Not HTTP1.1 :", err, string(b2))
+			conn.Close()
+			return
+		}
+		port = ":80"
 	}
 
 	parts := strings.Split(hostname, ".")
-	if len(parts) < 4 {
+	if (mode == "stack" && len(parts) < 4) || (mode == "service" && len(parts) < 3) {
 		log.Errorln("Session", session.id, "- SNI too short ", hostname)
 		conn.Close()
 		return
 	}
 
-	addr := parts[1] + "_" + parts[0] + ":443"
-	log.Println("Session", session.id, "- Dialing...", addr)
+	var addr string
+	if mode == "stack" {
+		addr = parts[1] + "_" + parts[0] + port
+	} else if mode == "service" {
+		addr = parts[0] + port
+	} else {
+		log.Fatal("mode not supported")
+	}
+
+	log.Println("Session", session.id, "- Dialing...", addr, hostname)
 	client, err := net.Dial("tcp", addr)
 	if err != nil {
 		log.Errorln("Session", session.id, "- Dial failed :", addr, err)
@@ -92,5 +114,5 @@ func (session *Session) ServerDispatch(conn net.Conn) {
 		return
 	}
 	session.streamToConn(session.c1, session.c2)
-	log.Println("Session", session.id, "Done")
+	log.Println("Session", session.id, "- Done")
 }
