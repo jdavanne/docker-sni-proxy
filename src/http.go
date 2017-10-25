@@ -2,26 +2,14 @@ package main
 
 import (
 	"errors"
-	"strings"
-
-	log "github.com/sirupsen/logrus"
+	"regexp"
 )
 
 func GetHostnameHTTP(data string) (string, error) {
-	parts := strings.SplitN(data, "\n", 3)
-	if len(parts) < 3 {
-		return "", errors.New("Host Header is missing")
+	re := regexp.MustCompile("\r\n(?i)Host: *(\\S+) *\r\n")
+	hosts := re.FindAllStringSubmatch(data, -1)
+	if len(hosts) > 0 {
+		return hosts[0][1], nil
 	}
-	parts2 := strings.SplitN(parts[1], ":", 3)
-	if len(parts2) < 2 {
-		return "", errors.New("Host Header is malformed : " + parts[1])
-	}
-
-	if strings.ToUpper(parts2[0]) != "HOST" {
-		return "", errors.New("Second Header is not 'Host: xxxxxx' : " + parts[1])
-	}
-
-	hostname := strings.Trim(parts2[1], " ")
-	log.Println("GetHostnameHTTP", hostname)
-	return hostname, nil
+	return "", errors.New("Host header not found")
 }
