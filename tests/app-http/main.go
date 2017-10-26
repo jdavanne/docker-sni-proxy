@@ -43,7 +43,8 @@ func listenAndServe(addr string) error {
 
 func main() {
 	http.HandleFunc("/", helloServer)
-	err := listenAndServe(":80")
+	port := os.Getenv("PORT")
+	err := listenAndServe(":" + port)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}

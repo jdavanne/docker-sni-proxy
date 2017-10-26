@@ -62,7 +62,6 @@ func (session *Session) ServerDispatch(conn net.Conn, tls bool, mode string) {
 	}
 	b2 = b2[:n]
 	var hostname string
-	var port string
 	if tls {
 		hostname, err = GetHostname(b2)
 		if err != nil {
@@ -70,7 +69,6 @@ func (session *Session) ServerDispatch(conn net.Conn, tls bool, mode string) {
 			conn.Close()
 			return
 		}
-		port = ":443"
 	} else {
 		hostname, err = GetHostnameHTTP(string(b2))
 		if err != nil {
@@ -78,7 +76,6 @@ func (session *Session) ServerDispatch(conn net.Conn, tls bool, mode string) {
 			conn.Close()
 			return
 		}
-		port = ":80"
 	}
 
 	parts := strings.Split(hostname, ".")
@@ -88,14 +85,31 @@ func (session *Session) ServerDispatch(conn net.Conn, tls bool, mode string) {
 		return
 	}
 
-	var addr string
+	var host string
 	if mode == "stack" {
-		addr = parts[1] + "_" + parts[0] + port
+		host = parts[1] + "_" + parts[0]
 	} else if mode == "service" {
-		addr = parts[0] + port
+		host = parts[0]
 	} else {
 		log.Fatal("mode not supported")
 	}
+
+	var port string
+	if tls {
+		if p, ok := TlsPorts[host]; ok {
+			port = p
+		} else {
+			port = "443"
+		}
+	} else {
+		if p, ok := HttpPorts[host]; ok {
+			port = p
+		} else {
+			port = "80"
+		}
+	}
+
+	addr := host + ":" + port
 
 	log.Println("Session", session.id, "- Dialing...", addr, hostname)
 	client, err := net.Dial("tcp", addr)

@@ -48,6 +48,7 @@ func main() {
 	formatter.DisableTimestamp = false
 	formatter.FullTimestamp = true
 	formatter.TimestampFormat = "2006-01-02 15:04:05.000000000"
+
 	log.SetFormatter(formatter)
 	log.SetLevel(log.DebugLevel)
 
@@ -55,11 +56,13 @@ func main() {
 	var tlsPort int
 	var httpPort int
 	var mode string
+	var publicNetwork string
 
 	flag.IntVar(&tlsPort, "tls-port", 443, "Specify the port to listen to.")
 	flag.IntVar(&httpPort, "http-port", 80, "Specify the port to listen to.")
 	flag.StringVar(&host, "host", "0.0.0.0", "Specify the interface to listen to.")
 	flag.StringVar(&mode, "mode", "stack", "Specify the mode : stack, service")
+	flag.StringVar(&publicNetwork, "docker-network", "public", "Specify the public network for docker")
 	flag.Parse()
 
 	sigs := make(chan os.Signal, 1)
@@ -77,6 +80,10 @@ func main() {
 	http := listen(host, httpPort, "HTTP")
 	defer http.Close()
 	go serve(http, false, mode)
+
+	if publicNetwork != "" {
+		go DockerInit(publicNetwork)
+	}
 
 	sig := <-sigs
 	log.Println()

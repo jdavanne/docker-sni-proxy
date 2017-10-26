@@ -3,36 +3,34 @@ version: "3.1"
 services:
   app1:
     image: test/dummy-tls-server
+    labels:
+      proxy: "true"
     build: ./tests/app-https
     environment:
       NAME: "${STACK}_app1"
-    networks:
-    - public_default
+      PORT: 443
 
   app2:
     image: test/dummy-tls-server
     build: ./tests/app-https
+    labels:
+      proxy: "true"
     environment:
       NAME: "${STACK}_app2"
-    networks:
-    - public_default
+      PORT: 443
 
   app3:
     image: test/dummy-tls-server
     build: ./tests/app-https
     environment:
       NAME: "${STACK}_app3"
-    networks:
-    - public_default
+      PORT: 443
 
   app4:
     image: test/dummy-http-server
+    labels:
+      proxy: "true"
     build: ./tests/app-http
     environment:
       NAME: "${STACK}_app4"
-    networks:
-    - public_default
-
-networks:
-  public_default:
-    external: true
+      PORT: 80

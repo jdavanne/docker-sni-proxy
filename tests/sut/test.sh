@@ -28,12 +28,28 @@ expect() {
   echo "Test $1 OK ('$2' = '$3')"
 }
 
+getip() {
+  case `uname -s` in
+    Darwin)
+      dscacheutil -q host -a name $1 | grep ip_address | awk '{ print $2 }'
+    ;;
+    *)
+    getent hosts $1 | awk '{ print $1 }'
+  esac
+}
+
 test_run() {
-  expect "app1.stack1" "$(curl --fail -s -k https://app1.${DOMAIN}:8443/)" "=app1="
-  expect "app2.stack1" "$(curl --fail -s -k https://app2.${DOMAIN}:8443/)" "=app2="
-  expect "app1.stack2" "$(curl --fail -s -k https://app1.${DOMAIN}:8443/)" "=app1="
-  expect "app2.stack2" "$(curl --fail -s -k https://app2.${DOMAIN}:8443/)" "=app2="
-  expect "app4.stack1" "$(curl --fail -s -k http://app4.${DOMAIN}:8080/)" "=app4="
+  ip=$(getip proxy)
+  echo "ip: $ip"
+  sleep 1
+  curl -k --resolve app1.${DOMAIN}:443:${ip} https://app1.${DOMAIN}:443/
+  expect "app1.stack1" "$(curl --fail -s -k --resolve app1.${DOMAIN}:443:${ip} https://app1.${DOMAIN}/)" "=app1="
+  expect "app2.stack1" "$(curl --fail -s -k --resolve app2.${DOMAIN}:443:${ip} https://app2.${DOMAIN}/)" "=app2="
+  expect "app1.stack2" "$(curl --fail -s -k --resolve app1.${DOMAIN}:443:${ip} https://app1.${DOMAIN}/)" "=app1="
+  expect "app2.stack2" "$(curl --fail -s -k --resolve app2.${DOMAIN}:443:${ip} https://app2.${DOMAIN}/)" "=app2="
+  expect "app4.stack1" "$(curl --fail -s -k --resolve app4.${DOMAIN}:80:${ip} http://app4.${DOMAIN}/)" "=app4="
+  expect "app5.stack1" "$(curl --fail -s -k --resolve app5.${DOMAIN}:80:${ip} http://app5.${DOMAIN}/)" "=app5="
+  expect "app6.stack1" "$(curl --fail -s -k --resolve app6.${DOMAIN}:443:${ip} https://app6.${DOMAIN}/)" "=app6="
   echo "All tests passed!"
 }
 

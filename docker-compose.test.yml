@@ -3,8 +3,10 @@ services:
   sut:
     image: test/sut
     build: tests/sut
-    network_mode: host # allow 127.0.0.1 to call external ports of proxy
+    #network_mode: host # allow 127.0.0.1 to call external ports of proxy
     command: [ './test.sh', 'test-only']
+    networks:
+    - public
     depends_on:
     - proxy
     - app1
@@ -18,6 +20,11 @@ services:
     tty: true #for human readable logs
     environment:
       MODE: service
+      DOCKER_NETWORK: dockersniproxy_public
+    networks:
+    - public
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
     ports:
     - 8443:443
     - 8080:80
@@ -25,23 +32,59 @@ services:
   app1:
     image: test/dummy-tls-server
     build: ./tests/app-https
+    labels:
+      proxy: "true"
     environment:
       NAME: "app1"
+      PORT: 443
 
   app2:
     image: test/dummy-tls-server
     build: ./tests/app-https
+    labels:
+      proxy: "true"
     environment:
       NAME: "app2"
+      PORT: 443
 
   app3:
     image: test/dummy-tls-server
     build: ./tests/app-https
+    labels:
+      proxy: "true"
     environment:
       NAME: "app3"
+      PORT: 443
 
   app4:
     image: test/dummy-http-server
     build: ./tests/app-http
+    labels:
+      proxy: "true"
     environment:
       NAME: "app4"
+      PORT: 80
+
+  app5:
+    image: test/dummy-http-server
+    build: ./tests/app-http
+    labels:
+      proxy: "true"
+      proxy-http-port: "8080"
+    environment:
+      NAME: "app5"
+      PORT: "8080"
+
+  app6:
+    image: test/dummy-tls-server
+    build: ./tests/app-https
+    labels:
+      proxy: "true"
+      proxy-tls-port: "8443"
+    environment:
+      NAME: "app6"
+      PORT: "8443"
+
+networks:
+  public:
+    driver: bridge

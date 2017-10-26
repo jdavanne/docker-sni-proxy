@@ -3,6 +3,13 @@ services:
   proxy:
     image: internal/docker-sni-router
     build: .
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    tty: true
     ports:
     - 443:443
     - 80:80
+networks:
+  default:
+    external:
+      name: public

@@ -47,7 +47,8 @@ func listenAndServeTLS(addr, certFile, keyFile string) error {
 
 func main() {
 	http.HandleFunc("/", helloServer)
-	err := listenAndServeTLS(":443", "server.crt", "server.key")
+	port := os.Getenv("PORT")
+	err := listenAndServeTLS(":"+port, "server.crt", "server.key")
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
