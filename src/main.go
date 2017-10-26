@@ -62,7 +62,7 @@ func main() {
 	flag.IntVar(&httpPort, "http-port", 80, "Specify the port to listen to.")
 	flag.StringVar(&host, "host", "0.0.0.0", "Specify the interface to listen to.")
 	flag.StringVar(&mode, "mode", "stack", "Specify the mode : stack, service")
-	flag.StringVar(&publicNetwork, "docker-network", "public", "Specify the public network for docker")
+	flag.StringVar(&publicNetwork, "docker-network", "", "Specify the public network for docker")
 	flag.Parse()
 
 	sigs := make(chan os.Signal, 1)
@@ -81,9 +81,7 @@ func main() {
 	defer http.Close()
 	go serve(http, false, mode)
 
-	if publicNetwork != "" {
-		go DockerInit(publicNetwork)
-	}
+	go DockerInit(publicNetwork)
 
 	sig := <-sigs
 	log.Println()

@@ -20,7 +20,7 @@ services:
     tty: true #for human readable logs
     environment:
       MODE: service
-      DOCKER_NETWORK: dockersniproxy_public
+      DOCKER_NETWORK: ${COMPOSE_PROJECT_NAME}_public
     networks:
     - public
     volumes:

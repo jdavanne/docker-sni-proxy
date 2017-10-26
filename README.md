@@ -19,7 +19,7 @@ Simplistic reverse proxy to route HTTPS(443) connection to actual dockers
 
 ## Changelog
 - 0.2.0
-  - add docker support : `docker-network=public`, `labels: proxy=true`
+  - add docker support : `docker-network=public` for the proxy, `labels: proxy=true` for containers/services
   - add docker internal port mapping support for http (80): `labels: proxy-http-port=<port>`
   - add docker internal port mapping support for tls/sni (443): `labels: proxy-tls-port=<port>`
 - 0.0.3

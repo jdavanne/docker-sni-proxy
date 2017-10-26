@@ -30,14 +30,16 @@ func (x *Docker) AddNetwork(name string, containerID string, labels map[string]s
 	stackName := labels["com.docker.compose.project"]
 	host := stackName + "_" + serviceName
 	aliases := []string{host, serviceName} //FIXME: add serviceName only for service mode
-	log.Println("Adding container", name, "to network", x.networkName, aliases)
 
-	options := network.EndpointSettings{}
-	options.Aliases = aliases
-	err := x.cli.NetworkConnect(x.ctx, x.networkID, containerID, &options)
-	if err != nil {
-		log.Errorln("Fail to add container", name, "to network", x.networkName, ":", err)
-		return
+	if x.networkID != "" {
+		log.Println("Adding container", name, "to network", x.networkName, aliases)
+		options := network.EndpointSettings{}
+		options.Aliases = aliases
+		err := x.cli.NetworkConnect(x.ctx, x.networkID, containerID, &options)
+		if err != nil {
+			log.Errorln("Fail to add container", name, "to network", x.networkName, ":", err)
+			return
+		}
 	}
 
 	if proxyHttpPort, ok := labels["proxy-http-port"]; ok {
@@ -59,11 +61,13 @@ func (x *Docker) AddNetwork(name string, containerID string, labels map[string]s
 }
 
 func (x *Docker) RemoveNetwork(name string, containerID string) {
-	log.Println("Removing container", name, "from network", x.networkName)
+	if x.networkID != "" {
+		log.Println("Removing container", name, "from network", x.networkName)
 
-	err := x.cli.NetworkDisconnect(x.ctx, x.networkID, containerID, true)
-	if err != nil {
-		log.Errorln("Fail to remove container", name, " from network", x.networkName, ":", err)
+		err := x.cli.NetworkDisconnect(x.ctx, x.networkID, containerID, true)
+		if err != nil {
+			log.Errorln("Fail to remove container", name, " from network", x.networkName, ":", err)
+		}
 	}
 }
 
@@ -112,13 +116,15 @@ func DockerInit(_publicNetworkName string) *Docker {
 	}
 
 	x.networkID = ""
-	for _, network := range networks {
-		if network.Name == x.networkName {
-			x.networkID = network.ID
+	if x.networkName != "" {
+		for _, network := range networks {
+			if network.Name == x.networkName {
+				x.networkID = network.ID
+			}
 		}
-	}
-	if x.networkID == "" {
-		log.Fatalln("Public Network for docker not found :", x.networkName)
+		if x.networkID == "" {
+			log.Fatalln("Public Network for docker not found :", x.networkName)
+		}
 	}
 
 	eventOptions := types.EventsOptions{}
