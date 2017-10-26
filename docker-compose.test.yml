@@ -5,14 +5,16 @@ services:
     build: tests/sut
     #network_mode: host # allow 127.0.0.1 to call external ports of proxy
     command: [ './test.sh', 'test-only']
-    networks:
-    - public
+    #networks:
+    #- public
     depends_on:
     - proxy
     - app1
     - app2
     - app3
     - app4
+    - app5
+    - app6
 
   proxy:
     image: internal/docker-sni-router
@@ -20,9 +22,9 @@ services:
     tty: true #for human readable logs
     environment:
       MODE: service
-      DOCKER_NETWORK: ${COMPOSE_PROJECT_NAME}_public
-    networks:
-    - public
+      DOCKER_NETWORK: ""
+    #networks:
+    #- public
     volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     ports:

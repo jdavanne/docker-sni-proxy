@@ -1,7 +1,6 @@
 # docker-sni-proxy
-#
 
-Simplistic reverse proxy to route HTTPS(443) connection to actual dockers
+Simplistic reverse proxy to route HTTPS(443) and HTTP(80) connection to actual dockers
 
 # How to use
 
