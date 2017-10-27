@@ -23,7 +23,7 @@ Usage of ./docker-sni-proxy:
 ### With stack network within a unique compose/swarm stack, manual network assignment
 - Use `MODE=service` or `MODE=stack` mode
 - Add public service within `docker-sni-proxy` network
-- see [./docker-compose.test.yml]
+- see [./docker-compose.test.yml](./docker-compose.test.yml)
 
 ### With external public network, with multiple compose/swarm stacks, manual network assignment
 - Use preferably `MODE=stack` mode
@@ -32,17 +32,17 @@ Usage of ./docker-sni-proxy:
 ### With external public network, with multiple compose/swarm stacks, automatic network assignment
 - Use preferably `MODE=stack` mode
 - Use `DOCKER_NETWORK=<public-network-name>`
-- see [docker-compose.yml]
+- see [docker-compose.yml](docker-compose.yml)
 
 ## Modes
 ### Service mode
-- Integrate `docker-sni-proxy` within your services with `MODE=service` (see [docker-compose.test.yml])
+- Integrate `docker-sni-proxy` within your services with `MODE=service` (see [docker-compose.test.yml](./docker-compose.test.yml))
 - To call a service <SERVICE>, use <SERVICE>.<DOMAIN>, `docker-sni-proxy` will call <SERVICE>
 
 ### Stack mode
 - Integrate `docker-sni-proxy` in a dedicated stack with `MODE=stack`
 - manual : Ensure all other public service are linked to that public network `<public-network-name>`
-- automatic : use `DOCKER_NETWORK=<public-network-name>` (see [docker-compose.yml])
+- automatic : use `DOCKER_NETWORK=<public-network-name>` (see [docker-compose.yml](docker-compose.yml))
 - To call a service <SERVICE> within the stack <STACK>, use <SERVICE>.<STACK>.<DOMAIN>, `docker-sni-proxy` will call `STACK_SERVICE`
 
 ## Changelog
