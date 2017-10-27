@@ -1,12 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"net"
 	"strings"
 	"sync"
 	"sync/atomic"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -53,14 +53,43 @@ func (session *Session) streamToConn(c1, c2 net.Conn) {
 }
 
 func (session *Session) ServerDispatch(conn net.Conn, tls bool, mode string) {
-	b2 := make([]byte, 1000)
-	time.Sleep(100 * time.Millisecond)
-	n, err := conn.Read(b2)
-	if err != nil {
-		conn.Close()
-		return
+	b2 := make([]byte, 17000)
+	//time.Sleep(100 * time.Millisecond) //FIXME: trick to accumulate data...
+	var err error
+	for {
+		n, err := conn.Read(b2) //FIXME: should read the full TLS first packet and the full first HTTP packet...
+		if err != nil {
+			log.Errorln("Session", session.id, "- Read Error", err)
+			conn.Close()
+			return
+		}
+		b2 = b2[:n]
+		if tls {
+			if b2[0] != 22 {
+				log.Errorln("Session", session.id, "- Not TLS Handshake")
+				conn.Close()
+				return
+			}
+			if n < 5 {
+				log.Errorln("Session", session.id, "- No header (No luck?)")
+				conn.Close()
+				return
+			}
+			version := fmt.Sprintf("%d.%d", b2[2], b2[1])
+			var size int
+			size = 256*int(b2[3]) + int(b2[4])
+			log.Println("Session", session.id, "- Hello TLS Packet, version:", version, "size:", size+5, n)
+			break
+		} else {
+			if strings.Contains(string(b2[:n]), "\r\n\r\n") {
+				break
+			}
+			log.Errorln("Session", session.id, "- Missing HTTP header trailer", n)
+			conn.Close()
+			return
+		}
 	}
-	b2 = b2[:n]
+
 	var hostname string
 	if tls {
 		hostname, err = GetHostname(b2)
