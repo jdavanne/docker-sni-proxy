@@ -23,7 +23,7 @@ services:
     environment:
       MODE: service
       DOCKER_NETWORK: ""
-      DOCKER_API_VERSION: "1.38"
+    #  DOCKER_API_VERSION: "1.38"
     #networks:
     #- public
     volumes:
@@ -88,6 +88,6 @@ services:
       NAME: "app6"
       PORT: "8443"
 
-networks:
-  public:
-    driver: bridge
+#networks:
+#  public:
+#    driver: bridge
