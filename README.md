@@ -46,6 +46,8 @@ Usage of ./docker-sni-proxy:
 - To call a service <SERVICE> within the stack <STACK>, use <SERVICE>.<STACK>.<DOMAIN>, `docker-sni-proxy` will call `STACK_SERVICE`
 
 ## Changelog
+- 0.3.1
+  - fix a panic on buffer overflow in GetSNBlock:93 (forgery attack)
 - 0.3.0
   - add support for docker swarm mode service
 - 0.2.0

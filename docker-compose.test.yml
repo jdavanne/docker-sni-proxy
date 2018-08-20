@@ -23,6 +23,7 @@ services:
     environment:
       MODE: service
       DOCKER_NETWORK: ""
+      DOCKER_API_VERSION: "1.38"
     #networks:
     #- public
     volumes:

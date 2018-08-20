@@ -1,4 +1,4 @@
-VERSION := 0.3.0
+VERSION := 0.3.1
 NAME := docker-sni-proxy
 DATE := $(shell date +'%Y-%M-%d_%H:%M:%S')
 BUILD := $(shell git rev-parse HEAD | cut -c1-8)

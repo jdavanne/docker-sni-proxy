@@ -87,11 +87,15 @@ func GetSNBlock(data []byte) ([]byte, error) {
 	data = data[2 : extensionLength+2]
 
 	for {
-		if index >= len(data) {
+		//if index >= len(data) {
+		if index + 3 >= len(data) { // JDA-1 : ensure enough daata
 			break
 		}
 		length := int((data[index+2] << 8) + data[index+3])
 		endIndex := index + 4 + length
+		if endIndex > len(data) { // JDA-1 : ensure enough daata
+			break
+		}
 		if data[index] == 0x00 && data[index+1] == 0x00 {
 			return data[index+4 : endIndex], nil
 		}
