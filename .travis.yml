@@ -6,16 +6,9 @@ go:
 services:
   - docker
 
-install:
-  - make deps-install
-  - make
+script:
   - make docker
   - make docker-test
 
-deploy:
-  provider: script
-  script:
-  - make docker-login
-  - make docker-publish
-  on:
-    branch: master
+after_success:
+  - [ "$TRAVIS_BRANCH" == "master" ] && make docker-login && make docker-publish
