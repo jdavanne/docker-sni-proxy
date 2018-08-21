@@ -12,3 +12,10 @@ install:
   - make docker
   - make docker-test
 
+deploy:
+  provider: script
+  script:
+  - make docker-login
+  - make docker-publish
+  on:
+    branch: master
