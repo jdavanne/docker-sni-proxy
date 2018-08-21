@@ -12,7 +12,7 @@ script:
 
 after_success:
   if [ "$TRAVIS_BRANCH" == "master" ]; then 
-    make docker-login
-    make docker-publish
+    make docker-login ;
+    make docker-publish ; 
   fi
 
